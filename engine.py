@@ -90,6 +90,219 @@ while it < len(tables_in_from):
 		idx_in_joined[tables_in_from[it]] = len(tables_metadata[tables_in_from[it - 1]])
 	it += 1
 
+if where_idx != -1:
+	try:
+		and_idx = _where.index("AND")
+	except:
+		and_idx = -1
+	try:
+		or_idx = _where.index("OR")
+	except:
+		or_idx = -1
+	cond_join = False
+	if and_idx != -1:
+		c1 = _where[:and_idx].strip()
+		c2 = _where[(4+and_idx):].strip()
+	elif or_idx != -1:
+		c1 = _where[:or_idx].strip()
+		c2 = _where[(3+or_idx):].strip()
+	elif and_idx == -1 and or_idx == -1:
+		c1 = _where.strip()
+		it = 0
+		while (it < len(c1) and (ord(c1[it]) not in [60, 61, 62])):
+			it += 1
+		col1 = c1[:it].strip()
+		rel_op1 = ""
+		while (it < len(c1) and (ord(c1[it]) in [60, 61, 62])):
+			rel_op1 += c1[it]
+			it += 1
+		try:
+			v1 = int(c1[it:].strip())
+		except:
+			cond_join = True
+		if '.' not in col1:
+			for t in tables_metadata.keys():
+				if col1 in tables_metadata[t]:
+					idx1 = idx_in_joined[t] + tables_metadata[t].index(col1)
+		else:
+			it = col1.index('.')
+			idx1 = idx_in_joined[col1[:it]] + tables_metadata[col1[:it]].index(col1[(1+it):])
+
+		if not cond_join:
+			temp = []
+			for r in query_table:
+				if rel_op1 == "=":
+					if r[idx1] == v1:
+						temp.append(r)
+				elif rel_op1 == "<":
+					if r[idx1] < v1:
+						temp.append(r)
+				elif rel_op1 == ">":
+					if r[idx1] > v1:
+						temp.append(r)
+				elif rel_op1 == ">=":
+					if r[idx1] >= v1:
+						temp.append(r)
+				elif rel_op1 == "<=":
+					if r[idx1] <= v1:
+						temp.append(r)
+			query_table = temp
+		else:
+			it = 0
+			while (it < len(_where)) and (ord(c1[it]) not in [60, 61, 62]):
+				it += 1
+			col1 = _where[:it].strip()
+			rel_op = ""
+			while (it < len(c1) and (ord(c1[it]) in [60, 61, 62])):
+				rel_op += _where[it]
+				it += 1
+			col2 = _where[it:].strip()
+			if '.' not in col1:
+				for t in tables_metadata.keys():
+					if col1 in tables_metadata[t]:
+						idx1 = idx_in_joined[t] + tables_metadata[t].index(col1)
+			else:
+				it = col1.index('.')
+				idx1 = idx_in_joined[col1[:it]] + tables_metadata[col1[:it]].index(col1[(1+it):])
+		
+			if '.' not in col2:
+				for t in tables_metadata.keys():
+					if col2 in tables_metadata[t]:
+						idx2 = idx_in_joined[t] + tables_metadata[t].index(col2)
+			else:
+				it = col2.index('.')
+				idx2 = idx_in_joined[col2[:it]] + tables_metadata[col2[:it]].index(col2[(1+it):])
+			temp = []
+			for r in query_table:
+				if rel_op == '<':
+					if r[idx1] < r[idx2]:
+						temp.append(r)
+				if rel_op == '<=':
+					if r[idx1] <= r[idx2]:
+						temp.append(r)
+				if rel_op == '>=':
+					if r[idx1] >= r[idx2]:
+						temp.append(r)
+				if rel_op == '>':
+					if r[idx1] > r[idx2]:
+						temp.append(r)
+				if rel_op == '=':
+					if r[idx1] == r[idx2]:
+						temp.append(r)
+			query_table = temp
+
+	if and_idx != -1 or or_idx != -1:
+		it = 0
+		while (it < len(c1)) and (ord(c1[it]) not in [60, 61, 62]):
+			it += 1
+		col1 = c1[:it].strip()
+		rel_op1 = ""
+		while (it < len(c1) and (ord(c1[it]) in [60, 61, 62])):
+			rel_op1 += c1[it]
+			it += 1
+		v1 = int(c1[it:].strip())
+		
+		it = 0
+		while (it < len(c2) and (ord(c2[it]) not in [60, 61, 62])):
+			it += 1
+		col2 = c2[:it].strip()
+		rel_op2 = ""
+		while (it < len(c2) and (ord(c2[it]) in [60, 61, 62])):
+			rel_op2 += c2[it]
+			it += 1
+		v2 = int(c2[it:].strip())
+		
+		if '.' not in col1:
+			for t in tables_metadata.keys():
+				if col1 in tables_metadata[t]:
+					idx1 = idx_in_joined[t] + tables_metadata[t].index(col1)
+		else:
+			it = col1.index('.')
+			idx1 = idx_in_joined[col1[:it]] + tables_metadata[col1[:it]].index(col1[(1+it):])
+		
+		if '.' not in col2:
+			for t in tables_metadata.keys():
+				if col2 in tables_metadata[t]:
+					idx2 = idx_in_joined[t] + tables_metadata[t].index(col2)
+		else:
+			it = col2.index('.')
+			idx2 = idx_in_joined[col2[:it]] + tables_metadata[col2[:it]].index(col2[(1+it):])
+	if and_idx != -1:
+		temp = []
+		for r in query_table:
+			if rel_op1 == "=":
+				if r[idx1] == v1:
+					temp.append(r)
+			elif rel_op1 == "<":
+				if r[idx1] < v1:
+					temp.append(r)
+			elif rel_op1 == ">":
+				if r[idx1] > v1:
+					temp.append(r)
+			elif rel_op1 == ">=":
+				if r[idx1] >= v1:
+					temp.append(r)
+			elif rel_op1 == "<=":
+				if r[idx1] <= v1:
+					temp.append(r)
+		query_table = []
+		for r in temp:
+			if rel_op2 == "=":
+				if r[idx2] == v2:
+					query_table.append(r)
+			elif rel_op2 == "<":
+				if r[idx2] < v2:
+					query_table.append(r)
+			elif rel_op2 == ">":
+				if r[idx2] > v2:
+					query_table.append(r)
+			elif rel_op2 == ">=":
+				if r[idx2] >= v2:
+					query_table.append(r)
+			elif rel_op2 == "<=":
+				if r[idx2] <= v2:
+					query_table.append(r)
+	if or_idx != -1:
+		temp = []
+		for r in query_table:
+			if rel_op1 == "=":
+				if r[idx1] == v1:
+					temp.append(r)
+			elif rel_op1 == "<":
+				if r[idx1] < v1:
+					temp.append(r)
+			elif rel_op1 == ">":
+				if r[idx1] > v1:
+					temp.append(r)
+			elif rel_op1 == ">=":
+				if r[idx1] >= v1:
+					temp.append(r)
+			elif rel_op1 == "<=":
+				if r[idx1] <= v1:
+					temp.append(r)
+		for r in query_table:
+			if rel_op2 == "=":
+				if r[idx2] == v2:
+					temp.append(r)
+			elif rel_op2 == "<":
+				if r[idx2] < v2:
+					temp.append(r)
+			elif rel_op2 == ">":
+				if r[idx2] > v2:
+					temp.append(r)
+			elif rel_op2 == ">=":
+				if r[idx2] >= v2:
+					temp.append(r)
+			elif rel_op2 == "<=":
+				if r[idx2] <= v2:
+					temp.append(r)
+		temp1 = set()
+		for r in temp:
+			temp1.add(tuple(r))
+		query_table = []
+		for r in temp1:
+			query_table.append(list(r))
+
 aggregate_funcs = ['sum', 'min', 'max', 'avg']
 
 distinct = (_select[:8] == "distinct")
@@ -113,7 +326,6 @@ if _select == '*':
 				print(row[i])
 			else:
 				print(row[i], end=', ')
-	exit()
 
 elif (_select[:3] in aggregate_funcs):
 	try:
@@ -167,7 +379,7 @@ else:
 					cols[i] = t + '.' + cols[i]
 					break
 		if '.' not in cols[i]:
-			print("ERROR: no column called {} found in databse".format(cols[i]))
+			print("ERROR: no column called {} found in database".format(cols[i]))
 			exit()
 	idx = []
 	for i in range(len(cols)):
@@ -190,6 +402,8 @@ else:
 		for r in ans:
 			t.add(tuple(r))
 		query_table = list(t)
+	else:
+		query_table = ans
 	for r in query_table:
 		for i in range(len(r)):
 			if i == len(r) - 1:
