@@ -1,4 +1,4 @@
-f = open("./files1/metadata.txt", "r")
+f = open("./files/metadata.txt", "r")
 x = f.readlines()
 f.close()
 
@@ -16,7 +16,7 @@ while it < len(x):
 
 tables_data = {}
 for t in tables_metadata.keys():
-	f = open("./files1/{}.csv".format(t), "r")
+	f = open("./files/{}.csv".format(t), "r")
 	x = f.readlines()
 	f.close()
 	y = []
@@ -127,7 +127,7 @@ if where_idx != -1:
 		except:
 			cond_join = True
 		if '.' not in col1:
-			for t in tables_metadata.keys():
+			for t in tables_in_from:
 				if col1 in tables_metadata[t]:
 					idx1 = idx_in_joined[t] + tables_metadata[t].index(col1)
 		else:
@@ -164,7 +164,7 @@ if where_idx != -1:
 				it += 1
 			col2 = _where[it:].strip()
 			if '.' not in col1:
-				for t in tables_metadata.keys():
+				for t in tables_in_from:
 					if col1 in tables_metadata[t]:
 						t1 = t + col1
 						idx1 = idx_in_joined[t] + tables_metadata[t].index(col1)
@@ -174,7 +174,7 @@ if where_idx != -1:
 				idx1 = idx_in_joined[col1[:it]] + tables_metadata[col1[:it]].index(col1[(1+it):])
 		
 			if '.' not in col2:
-				for t in tables_metadata.keys():
+				for t in tables_in_from:
 					if col2 in tables_metadata[t]:
 						t2 = t + col2
 						idx2 = idx_in_joined[t] + tables_metadata[t].index(col2)
@@ -222,7 +222,7 @@ if where_idx != -1:
 			rel_op2 += c2[it]
 			it += 1
 		v2 = int(c2[it:].strip())
-
+		
 		if '.' not in col1:
 			for t in tables_in_from:
 				if col1 in tables_metadata[t]:
@@ -230,7 +230,7 @@ if where_idx != -1:
 		else:
 			it = col1.index('.')
 			idx1 = idx_in_joined[col1[:it]] + tables_metadata[col1[:it]].index(col1[(1+it):])
-
+		
 		if '.' not in col2:
 			for t in tables_in_from:
 				if col2 in tables_metadata[t]:
@@ -238,7 +238,6 @@ if where_idx != -1:
 		else:
 			it = col2.index('.')
 			idx2 = idx_in_joined[col2[:it]] + tables_metadata[col2[:it]].index(col2[(1+it):])
-
 	if and_idx != -1:
 		temp = []
 		for r in query_table:
@@ -319,7 +318,7 @@ aggregate_funcs = ['sum', 'min', 'max', 'avg']
 
 distinct = (_select[:8] == "distinct")
 if distinct:
-	_select = _select[9:].strip("()")
+	_select = _select[9:]
 
 rep_col = []
 if t1:
@@ -372,7 +371,7 @@ elif (_select[:3] in aggregate_funcs):
 		table_name = col[:x]
 		col = col[(1+x):]
 	except:
-		for t in tables_metadata.keys():
+		for t in tables_in_from:
 			if col in tables_metadata[t]:
 				table_name = t
 				break
